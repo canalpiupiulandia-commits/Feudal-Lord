@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feudal Lord</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div id="menu-screen">
+  <div class="menu-crest">✍</div>
+  <div class="menu-title">FEUDAL LORD</div>
+  <div class="menu-subtitle">SIMULADOR MEDIEVAL &amp; POLÍTICO</div>
+  <button class="menu-btn" onclick="startNewGame()">&#9876; NOVO REINADO</button>
+  <button class="menu-btn" id="load-btn" onclick="loadGame()" disabled>&#128190; CARREGAR SAVE</button>
+  <div style="margin-top:24px;font-size:12px;color:#4a3520;letter-spacing:2px">v1.0 &mdash; Um jogo de estratégia medieval</div>
+</div>
+
+<div id="game-screen">
+  <div id="topbar">
+    <div class="tb-section">
+      <span class="tb-icon">👑</span>
+      <div><div class="tb-label">Reino</div><div class="tb-value" id="tb-kingdom">---</div></div>
+    </div>
+    <div class="tb-section">
+      <span class="tb-icon">💰</span>
+      <div><div class="tb-label">Tesouro</div><div class="tb-value" id="tb-gold">0</div><div class="tb-delta" id="tb-gold-delta"></div></div>
+    </div>
+    <div class="tb-section">
+      <span class="tb-icon">🌾</span>
+      <div><div class="tb-label">Alimentos</div><div class="tb-value" id="tb-food">0</div></div>
+    </div>
+    <div class="tb-section">
+      <span class="tb-icon">👥</span>
+      <div><div class="tb-label">População</div><div class="tb-value" id="tb-pop">0</div><div class="tb-delta" id="tb-pop-delta"></div></div>
+    </div>
+    <div class="tb-section">
+      <span class="tb-icon">📊</span>
+      <div><div class="tb-label">PIB/ano</div><div class="tb-value" id="tb-gdp">0</div></div>
+    </div>
+    <div class="tb-section">
+      <span class="tb-icon">❤️</span>
+      <div><div class="tb-label">Estabilidade</div><div class="tb-value" id="tb-stability">0%</div></div>
+    </div>
+    <div class="tb-section">
+      <span class="tb-icon">★</span>
+      <div><div class="tb-label">Prestígio</div><div class="tb-value" id="tb-prestige">0</div></div>
+    </div>
+    <div class="tb-section" style="margin-left:auto;border-right:none;">
+      <div id="date-display">1 Janeiro 1066</div>
+      <button id="pause-btn" onclick="togglePause()" title="Pausar/Continuar">⏸</button>
+      <button class="speed-btn active" id="spd1" onclick="setSpeed(1)" title="1x">1x</button>
+      <button class="speed-btn" id="spd2" onclick="setSpeed(2)" title="2x">2x</button>
+      <button class="speed-btn" id="spd3" onclick="setSpeed(4)" title="4x">4x</button>
+      <button class="btn btn-gold" onclick="saveGame()" style="margin-left:8px;font-size:12px;padding:4px 10px">💾 SALVAR</button>
+    </div>
+  </div>
+
+  <div id="main-area">
+    <div id="left-nav">
+      <button class="nav-btn active" onclick="showPanel('overview')" id="nav-overview">
+        🗻<span class="tooltip">Visão Geral</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('population')" id="nav-population">
+        👥<span class="tooltip">População</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('economy')" id="nav-economy">
+        💰<span class="tooltip">Economia</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('buildings')" id="nav-buildings">
+        🏗<span class="tooltip">Construções</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('research')" id="nav-research">
+        🔬<span class="tooltip">Pesquisa</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('laws')" id="nav-laws">
+        📜<span class="tooltip">Leis</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('council')" id="nav-council">
+        ⚖️<span class="tooltip">Conselho</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('health')" id="nav-health">
+        ⚕️<span class="tooltip">Saúde</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('intrigues')" id="nav-intrigues">
+        🗡<span class="tooltip">Intrigas</span>
+      </button>
+      <button class="nav-btn" onclick="showPanel('events')" id="nav-events">
+        📣<span class="tooltip">Histórico</span>
+      </button>
+    </div>
+
+    <div id="panel-area">
+      <div class="panel active" id="panel-overview">
+        <div class="panel-title">🗻 Visão Geral do Reino</div>
+        <div class="grid-4 mb-16" id="overview-stats"></div>
+        <div class="grid-2">
+          <div>
+            <div class="section-h">📈 Fluxo Econômico</div>
+            <div id="overview-econ"></div>
+          </div>
+          <div>
+            <div class="section-h">⚠️ Alertas Reais</div>
+            <div id="overview-alerts"></div>
+          </div>
+        </div>
+        <div class="section-h mt-16">📅 Eventos Recentes</div>
+        <div id="overview-log"></div>
+      </div>
+
+      <div class="panel" id="panel-population">
+        <div class="panel-title">👥 População &amp; Sociedade</div>
+        <div class="grid-2">
+          <div>
+            <div class="section-h">👚 Grupos Sociais</div>
+            <div id="pop-groups"></div>
+          </div>
+          <div>
+            <div class="section-h">📊 Censo Demográfico</div>
+            <div id="pop-census"></div>
+            <div class="section-h mt-12">👶 Taxa Vital</div>
+            <div id="pop-vitals"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-economy">
+        <div class="panel-title">💰 Economia do Reino</div>
+        <div class="grid-4 mb-16" id="econ-cards"></div>
+        <div class="grid-2">
+          <div>
+            <div class="section-h">📊 Recursos</div>
+            <div id="econ-resources"></div>
+            <div class="section-h mt-12">💸 Receita</div>
+            <div id="econ-income"></div>
+          </div>
+          <div>
+            <div class="section-h">💸 Despesas</div>
+            <div id="econ-expenses"></div>
+            <div class="section-h mt-12">🏪 Comércio Privado</div>
+            <div id="econ-private"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-buildings">
+        <div class="panel-title">🏗 Construções &amp; Infraestrutura</div>
+        <div class="section-h">🌾 Produção Agrícola</div>
+        <div class="grid-3" id="buildings-agri"></div>
+        <div class="section-h mt-12">🏭 Indústria</div>
+        <div class="grid-3" id="buildings-industry"></div>
+        <div class="section-h mt-12">🏠 Serviços &amp; Governo</div>
+        <div class="grid-3" id="buildings-services"></div>
+      </div>
+
+      <div class="panel" id="panel-research">
+        <div class="panel-title">🔬 Pesquisa &amp; Tecnologia</div>
+        <div id="research-current" class="mb-16"></div>
+        <div id="research-categories"></div>
+      </div>
+
+      <div class="panel" id="panel-laws">
+        <div class="panel-title">📜 Leis &amp; Governança</div>
+        <div class="grid-2" id="laws-grid"></div>
+      </div>
+
+      <div class="panel" id="panel-council">
+        <div class="panel-title">⚖️ Conselho Real</div>
+        <div id="council-grid"></div>
+      </div>
+
+      <div class="panel" id="panel-health">
+        <div class="panel-title">⚕️ Sistema de Saúde</div>
+        <div class="grid-2">
+          <div>
+            <div class="section-h">🏥 Infraestrutura de Saúde</div>
+            <div id="health-infra"></div>
+            <div class="section-h mt-12">🧬 Índices de Saúde</div>
+            <div id="health-indices"></div>
+          </div>
+          <div>
+            <div class="section-h">⚠️ Surtos &amp; Epidemias</div>
+            <div id="health-outbreaks"></div>
+            <div class="section-h mt-12">🦊 Mortalidade por Causa</div>
+            <div id="health-mortality"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-intrigues">
+        <div class="panel-title">🗡 Intrigas Políticas</div>
+        <div class="grid-2">
+          <div>
+            <div class="section-h">🕷 Conspirações Ativas</div>
+            <div id="intrigues-active"></div>
+          </div>
+          <div>
+            <div class="section-h">🔍 Rede de Espiões</div>
+            <div id="intrigues-spy"></div>
+            <div class="section-h mt-12">🏆 Prestígio &amp; Lealdade</div>
+            <div id="intrigues-loyalty"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-events">
+        <div class="panel-title">📣 Histórico de Eventos</div>
+        <div id="events-log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="event-modal">
+  <div class="event-box">
+    <div class="event-type" id="ev-type"></div>
+    <div class="event-title" id="ev-title"></div>
+    <div class="event-desc" id="ev-desc"></div>
+    <div class="event-options" id="ev-options"></div>
+  </div>
+</div>
+
+<div id="save-indicator">💾 Jogo Salvo!</div>
+<div id="notif-area"></div>
+
+<script src="assets/js/data/constants.js"></script>
+<script src="assets/js/data/buildings_data.js"></script>
+<script src="assets/js/data/research_data.js"></script>
+<script src="assets/js/data/events_data.js"></script>
+<script src="assets/js/systems/population.js"></script>
+<script src="assets/js/systems/economy.js"></script>
+<script src="assets/js/systems/buildings.js"></script>
+<script src="assets/js/systems/research.js"></script>
+<script src="assets/js/systems/laws.js"></script>
+<script src="assets/js/systems/council.js"></script>
+<script src="assets/js/systems/health.js"></script>
+<script src="assets/js/systems/events.js"></script>
+<script src="assets/js/systems/intrigues.js"></script>
+<script src="assets/js/save.js"></script>
+<script src="assets/js/ui/renderer.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
